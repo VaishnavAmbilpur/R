@@ -37,7 +37,7 @@ export default function Home() {
             by="character" 
             className="text-3xl font-mono font-extrabold"
           >
-            X Roaster
+           Leetcode Roaster
           </TextAnimate>
           <TextAnimate 
             animation="slideUp" 
@@ -45,7 +45,7 @@ export default function Home() {
             by="character" 
             className="text-xs font-mono font-extrabold"
           >
-            What to Roast your X acc?
+            Want to Roast your Leetcode acc?
           </TextAnimate>
         </div>
         <div>
