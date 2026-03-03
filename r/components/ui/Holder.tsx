@@ -13,6 +13,14 @@ import { Input } from "@/components/ui/input";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { TextAnimate } from "../magicui/text-animate";
 import { useRef, useState } from "react";
+import {
+  Calculator,
+  Trophy,
+  Star,
+  CheckCircle2,
+  AlertCircle,
+  Flame
+} from "lucide-react";
 
 interface Stats {
   totalSolved: number;
@@ -20,7 +28,7 @@ interface Stats {
   mediumSolved: number;
   hardSolved: number;
   ranking: number;
-  acceptanceRate: number;
+  reputation: number;
 }
 
 export function Component() {
@@ -44,11 +52,11 @@ export function Component() {
       "Hard",
       "Ranking",
       "Rank",
-      "Acceptance"
+      "Reputation"
     ];
 
     const parts = text.split(
-      /(\b\d+%?\b|\bTotal\b|\bEasy\b|\bMedium\b|\bHard\b|\bRanking\b|\bRank\b|\bAcceptance\b)/gi
+      /(\b\d+%?\b|\bTotal\b|\bEasy\b|\bMedium\b|\bHard\b|\bRanking\b|\bRank\b)/gi
     );
 
     return parts.map((part, index) => {
@@ -71,7 +79,7 @@ export function Component() {
 
     try {
       const res = await fetch(
-        `https://leetcode-stats-api.herokuapp.com/${username}`
+        `/api/leetcode?username=${username}`
       );
 
       if (!res.ok) throw new Error("User not found");
@@ -84,7 +92,7 @@ export function Component() {
         mediumSolved: data.mediumSolved,
         hardSolved: data.hardSolved,
         ranking: data.ranking,
-        acceptanceRate: data.acceptanceRate,
+        reputation: data.reputation,
       };
 
       setStats(extractedStats);
@@ -101,7 +109,7 @@ Easy: ${extractedStats.easySolved}
 Medium: ${extractedStats.mediumSolved}
 Hard: ${extractedStats.hardSolved}
 Ranking: ${extractedStats.ranking}
-Acceptance Rate: ${extractedStats.acceptanceRate}%
+Reputation: ${extractedStats.reputation}
 
 Roast intelligently under 90 words.
 Be specific. Personal. Sharp.
@@ -111,9 +119,9 @@ Be specific. Personal. Sharp.
       setResponse(result.text || "No roast generated.");
       setMode("response");
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      setResponse("User not found or API error.");
+      setResponse(`Error: ${error.message || "Something went wrong"}.`);
       setMode("response");
     }
 
@@ -121,14 +129,14 @@ Be specific. Personal. Sharp.
   }
 
   return (
-    <Card className="relative w-[340px] md:w-[560px] overflow-hidden bg-black text-white border border-white/10 rounded-2xl shadow-2xl">
+    <Card className="relative w-full max-w-[340px] md:max-w-[640px] h-auto max-h-[90vh] overflow-hidden bg-black text-white border border-white/10 rounded-2xl shadow-2xl mx-auto flex flex-col">
 
       {mode === 'input' ? (
         <>
-          <CardHeader>
-            <CardTitle className="tracking-tight text-xl md:text-3xl font-extrabold">
+          <CardHeader className="pt-8">
+            <CardTitle className="tracking-tighter text-2xl md:text-3xl font-black text-center uppercase italic">
               <TextAnimate animation="blurIn">
-                I Dare You Enter Your Profile
+                Drop Your Username. Prepare to Burn.
               </TextAnimate>
             </CardTitle>
           </CardHeader>
@@ -150,7 +158,7 @@ Be specific. Personal. Sharp.
           <CardFooter>
             <Button
               disabled={loading}
-              className="w-full bg-white text-black font-bold hover:bg-white/80 transition-all"
+              className="w-full bg-white text-black font-bold hover:bg-white/80 transition-all uppercase tracking-widest"
               onClick={() => {
                 if (info.current && !loading)
                   main(info.current.value.trim());
@@ -170,26 +178,29 @@ Be specific. Personal. Sharp.
 
           <CardContent className="space-y-6">
 
-         
+
             {stats && (
-              <div className="grid grid-cols-2 gap-4 text-center">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
                 {[
-                  ["Total", stats.totalSolved],
-                  ["Easy", stats.easySolved],
-                  ["Medium", stats.mediumSolved],
-                  ["Hard", stats.hardSolved],
-                  ["Rank", stats.ranking],
-                  ["Acceptance", `${stats.acceptanceRate}%`],
-                ].map(([label, value]) => (
+                  { label: "Total", value: stats.totalSolved, icon: <Calculator className="w-4 h-4 text-blue-400" /> },
+                  { label: "Easy", value: stats.easySolved, icon: <CheckCircle2 className="w-4 h-4 text-green-400" /> },
+                  { label: "Medium", value: stats.mediumSolved, icon: <AlertCircle className="w-4 h-4 text-yellow-400" /> },
+                  { label: "Hard", value: stats.hardSolved, icon: <Flame className="w-4 h-4 text-red-400" /> },
+                  { label: "Rank", value: stats.ranking, icon: <Trophy className="w-4 h-4 text-amber-400" /> },
+                  { label: "Reputation", value: stats.reputation, icon: <Star className="w-4 h-4 text-purple-400" /> },
+                ].map(({ label, value, icon }) => (
                   <div
                     key={label}
-                    className="border border-white/10 rounded-xl p-4 bg-black"
+                    className="border border-white/10 rounded-xl p-4 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center gap-2 hover:border-white/20 transition-colors"
                   >
-                    <div className="text-xs uppercase tracking-wide text-white/50">
-                      {label}
+                    <div className="flex items-center gap-2">
+                      {icon}
+                      <div className="text-[10px] uppercase tracking-widest text-white/50 font-medium">
+                        {label}
+                      </div>
                     </div>
-                    <div className="text-lg md:text-xl font-bold">
-                      {value}
+                    <div className="text-xl md:text-2xl font-black tracking-tighter">
+                      {value.toLocaleString()}
                     </div>
                   </div>
                 ))}
